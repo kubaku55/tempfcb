@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>FC Barcelona — Next Match Countdown</title>
+
+<!-- Google Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Coda:wght@800&family=Merriweather:wght@700&display=swap" rel="stylesheet">
+
+<style>
+/* === CONTAINER === */
+#fs-upcoming{
+  position:relative;width:614px;height:300px;margin:auto;
+  background:black;border-radius:12px;overflow:hidden;color:#fff;
+}
+
+/* hide original embed (we'll overlay our own UI) */
+#fs-upcoming>*:not(.overlay){visibility:hidden}
+
+/* === OVERLAY === */
+.overlay{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:1.3rem;background:rgba(0,0,0,.55);z-index:5;padding-top:50px}
+.title{font:800 26px/1 "Coda",system-ui;letter-spacing:.5px;text-transform:uppercase;text-align:center}
+.details{font:700 14px/1.2 "Merriweather",serif;text-align:center;opacity:.9}
+.countdown{display:flex;gap:28px}
+.unit{display:flex;flex-direction:column;align-items:center;min-width:70px}
+.num{font:700 38px/1 "Merriweather",serif}
+.lbl{font:700 11px/1 "Merriweather",serif;letter-spacing:1px;text-transform:uppercase;opacity:.75}
+
+/* === TEAM BADGES (LEFT vs RIGHT) === */
+.badge-left{
+  position:absolute;top:25px;left:100px;z-index:5;
+  width:64px;height:64px;border:none;background:transparent;
+}
+.badge-right{
+  position:absolute;top:25px;right:100px;z-index:5;
+  width:64px;height:64px;border:none;background:transparent;
+}
+
+/* Removed the football icon entirely */
+</style>
+</head>
+<body>
+
+<div id="fs-upcoming">
+  <!-- overlay UI -->
+  <div class="overlay" id="overlay" style="display:none">
+    <!-- Team badges: Home team left, Away team right -->
+    <img id="homeImg" class="badge-left" alt="Home Team">
+    <img id="awayImg" class="badge-right" alt="Away Team">
+    
+    <!-- Removed the football icon span -->
+
+    <div class="title" id="matchTitle">Loading…</div>
+    <div class="details" id="matchMeta"></div>
+
+    <div class="countdown">
+      <div class="unit"><span class="num" id="d">00</span><span class="lbl">Days</span></div>
+      <div class="unit"><span class="num" id="h">00</span><span class="lbl">Hours</span></div>
+      <div class="unit"><span class="num" id="m">00</span><span class="lbl">Mins</span></div>
+      <div class="unit"><span class="num" id="s">00</span><span class="lbl">Secs</span></div>
+    </div>
+  </div>
+</div>
+
+<script>
+(async () => {
+  try {
+    // Set fixed match details
+    document.getElementById('matchTitle').textContent = 'FC Barcelona vs Como 1907';
+    document.getElementById('matchMeta').textContent = 'Joan Gamper Trophy • Sunday 10th August • 21:00';
+    
+    // Set the team logos
+    document.getElementById('homeImg').src = 'https://upload.wikimedia.org/wikipedia/en/thumb/4/47/FC_Barcelona_%28crest%29.svg/142px-FC_Barcelona_%28crest%29.svg.png?20120407190948';
+    document.getElementById('awayImg').src = 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/99/Calcio_Como_-_logo_%28Italy%2C_2019-%29.svg/1200px-Calcio_Como_-_logo_%28Italy%2C_2019-%29.svg.png';
+    
+    document.getElementById('overlay').style.display = 'flex';
+
+    // Set target date: August 10th, 2025, 21:00 CEST
+    const target = new Date(2025, 7, 10, 21, 0, 0); // Month is 0-indexed, so 7 = August
+    
+    // Live countdown
+    const pad = n => String(n).padStart(2,'0');
+    const tick = () => {
+      const diff = target.getTime() - Date.now();
+      
+      if (diff <= 0) {
+        ['d','h','m','s'].forEach(id => document.getElementById(id).textContent = '00');
+        document.getElementById('matchTitle').textContent = 'MATCH DAY!';
+        return;
+      }
+      
+      const totalSeconds = Math.floor(diff / 1000);
+      const days = Math.floor(totalSeconds / 86400);
+      const hours = Math.floor((totalSeconds % 86400) / 3600);
+      const mins = Math.floor((totalSeconds % 3600) / 60);
+      const secs = totalSeconds % 60;
+      
+      document.getElementById('d').textContent = pad(days);
+      document.getElementById('h').textContent = pad(hours);
+      document.getElementById('m').textContent = pad(mins);
+      document.getElementById('s').textContent = pad(secs);
+      
+      requestAnimationFrame(tick);
+    };
+    
+    tick();
+    
+  } catch (err) {
+    console.error('Countdown setup failed:', err);
+    document.getElementById('matchTitle').textContent = 'Error Loading Match';
+    document.getElementById('matchMeta').textContent = 'Please refresh the page';
+    document.getElementById('overlay').style.display = 'flex';
+  }
+})();
+</script>
+</body>
+</html>
